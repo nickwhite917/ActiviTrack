@@ -7,10 +7,18 @@
 
 #Function region
 #region
+# Function  : New-Project
+# Arguments : (ProjectName) Project's Name 
+#             (ProjectNumber) Project's Number
+#             (Description) Description of the project
+# Return    : Object of type Project with input and default values set.
 function New-Project(){
   param ($ProjectName, $ProjectNumber)
 
+  $Guid = [guid]::NewGuid()
+  $GuidString = $Guid.toString()
   $obj = new-object PSObject
+  $obj | add-member -type NoteProperty -Name ProjectId   -Value $GuidString
   $obj | add-member -type NoteProperty -Name ProjectName   -Value $ProjectName
   $obj | add-member -type NoteProperty -Name ProjectNumber  -Value $ProjectNumber
 
@@ -167,9 +175,12 @@ Function Execute-New(){
 
 function New-CsvLine($Project, $Statistic, $TimeEntry){
     If($Project -ne $null){
-        $CsvLine += $Project.ProjectNumber
+        $CsvLine += $Project.ProjectId
         $CsvLine += ','
         $CsvLine += $Project.ProjectName
+        $CsvLine += ','
+        $CsvLine += $Project.ProjectNumber
+        
     }
     ElseIf($Statistic -ne $null){
         $CsvLine  = $Statistic.Project
@@ -198,7 +209,7 @@ Function Retrieve-Projects(){
    $Projects = @()
    $Content = Get-Content $ProjectFilePath
    Foreach($Item in $Content){
-       If($Item.toUpper().Contains("PROJECT FILE")){
+       If(($Item.toUpper().Contains("PROJECT FILE"))){
          Continue
        }
        If($Item.length  -lt 2){
@@ -211,11 +222,19 @@ Function Retrieve-Projects(){
 }
 Function Parse-Project($Item){
    $Split = $Item.Split(',')
-   $Project = New-Project -ProjectName $Split[1] -ProjectNumber $Split[0]
+   $Project = New-Project -ProjectNumber $Split[2] -ProjectName $Split[1] -ProjectId $Split[0]
    Return $Project
 }
 
+Function Refresh-Project-Table(){
 
+}
+Function Refresh-Statistics-Table(){
+
+}
+Function Refresh-TimeEntries-Table(){
+
+}
 
 #endregion
 
